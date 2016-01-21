@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+BASEDIR=$(dirname ${0})
+. ${BASEDIR}/letsencrypt-common
+
+ZCERTDIR=$(mktemp -q -d /tmp/cert.XXXXXXXX)
+
+cat ${CERTDIR}/cert.pem >${ZCERTDIR}/cert.pem
+cat ${CERTDIR}/privkey.pem >${ZCERTDIR}/privkey.pem
+cat /usr/share/ca-certificates/mozilla/DST_Root_CA_X3.crt \
+    /etc/letsencrypt/live/${DOMAIN}/fullchain.pem > ${ZCERTDIR}/zimbrachain.pem
+
+/opt/zimbra/bin/zmcertmgr verifycrt comm ${ZCERTDIR}/privkey.pem ${ZCERTDIR}/cert.pem ${ZCERTDIR}/zimbrachain.pem 
+
+if ! cmp ${ZCERTDIR}/privkey.pem /opt/zimbra/ssl/zimbra/commercial/commercial.key; then
+    cp ${ZCERTDIR}/privkey.pem /opt/zimbra/ssl/zimbra/commercial/commercial.key
+    chown zimbra:zimbra /opt/zimbra/ssl/zimbra/commercial/commercial.key
+fi
+
+/opt/zimbra/bin/zmcertmgr deploycrt comm ${ZCERTDIR}/cert.pem ${ZCERTDIR}/zimbrachain.pem
+
+rm -rf ${ZCERTDIR}

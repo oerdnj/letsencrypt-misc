@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+BASEDIR=$(dirname ${0})
+. ${BASEDIR}/letsencrypt-common
+
+DAYS=${2:-30}
+
+if ${BASEDIR}/letsencrypt-renewneeded "${DOMAIN}" "${DAYS}"; then
+    sudo -Hn -u zimbra /opt/zimbra/bin/zmproxyctl stop
+    sudo -Hn -u zimbra /opt/zimbra/bin/zmmailboxdctl stop
+
+    /opt/letsencrypt/letsencrypt-auto certonly --authenticator standalone --renew-by-default --agree-tos -d "${DOMAIN}"
+
+    ${BASEDIR}/letsencrypt-zimbrainstallcert "${DOMAIN}"
+
+    sudo -Hn -u zimbra /opt/zimbra/bin/zmcontrol restart
+fi
+
+exit 0

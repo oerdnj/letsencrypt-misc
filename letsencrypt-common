@@ -1,0 +1,14 @@
+#!/bin/sh
+
+DOMAIN=${1}
+
+if ! type -t usage | grep -q "function"; then
+    usage() {
+	echo "$0 DOMAIN"
+	exit ${1:-0}
+    }
+fi
+
+[ -z "${DOMAIN}" ] && usage 127
+
+CERTDIR=/etc/letsencrypt/live/${DOMAIN}

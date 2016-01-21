@@ -1,14 +1,16 @@
 #!/bin/sh
-DOMAIN=${1}
-DAYS=${2}
 
 usage() {
     echo "$0 DOMAIN DAYS"
     exit ${1:-0}
 }
 
-[ -z "${DOMAIN}" ] && usage 127
-[ -z "${DAYS}" ]   && usage 127
+BASEDIR=$(dirname ${0})
+. ${BASEDIR}/letsencrypt-common
+
+DAYS=${2}
+
+[ -z "${DAYS}" ] && usage 127
 
 CERTDIR=/etc/letsencrypt/live/${DOMAIN}
 
@@ -16,7 +18,7 @@ DIFFSEC=$(($(date +%s -d"$(openssl x509 -in ${CERTDIR}/cert.pem -noout -enddate 
 
 MAXSEC=$((${DAYS}*24*60*60))
 
-if [ "${DIFFSEC}" -lt "${MAXSEC}" ]; then
+if [ "${DIFFSEC}" -gt "${MAXSEC}" ]; then
     exit 1
 fi
 
