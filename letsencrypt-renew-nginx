@@ -15,14 +15,19 @@ while read DAYS HOSTNAME DOMAINS; do
     [ -z "$DAYS" ] && usage
     [ -z "$HOSTNAME" ] && usage
 
-    if /opt/letsencrypt-misc/letsencrypt-renewneeded $HOSTNAME $DAYS; then
+    RETRIES=5
+    while /opt/letsencrypt-misc/letsencrypt-renewneeded $HOSTNAME $DAYS; do
+	RESTART_NGINX=true
         PARAMS="$PARAMS -d $HOSTNAME"
     
 	for DOMAIN in $DOMAINS; do
 	    PARAMS="$PARAMS -d $DOMAIN"
 	done
 	/opt/letsencrypt/letsencrypt-auto certonly $PARAMS
-	RESTART_NGINX=true
+
+	if [ "$RETRIES" -eq "0" ]; then
+	    break;
+	fi
     fi
 done < /etc/letsencrypt/domains.conf
 
