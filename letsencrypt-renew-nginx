@@ -12,8 +12,8 @@ RESTART_NGINX=false
 
 while read DAYS HOSTNAME DOMAINS; do
 
-    [ -z "$DAYS" ] && usage()
-    [ -z "$HOSTNAME" ] && usage()
+    [ -z "$DAYS" ] && usage
+    [ -z "$HOSTNAME" ] && usage
 
     if /opt/letsencrypt-misc/letsencrypt-renewneeded $HOSTNAME $DAYS; then
         PARAMS="$PARAMS -d $HOSTNAME"
