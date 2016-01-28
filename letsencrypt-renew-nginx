@@ -1,0 +1,31 @@
+#!/bin/sh
+
+LETSENCRYPT=/opt/letsencrypt/letsencrypt-auto
+PARAMS="--authenticator webroot --renew-by-default --agree-tos --webroot-path=/etc/letsencrypt/webroot/"
+
+usage() {
+    echo bad params
+    exit 1
+}
+
+RESTART_NGINX=false
+
+while read DAYS HOSTNAME DOMAINS; do
+
+    [ -z "$DAYS" ] && usage()
+    [ -z "$HOSTNAME" ] && usage()
+
+    if /opt/letsencrypt-misc/letsencrypt-renewneeded $HOSTNAME $DAYS; then
+        PARAMS="$PARAMS -d $HOSTNAME"
+    
+	for DOMAIN in $DOMAINS; do
+	    PARAMS="$PARAMS -d $DOMAIN"
+	done
+	/opt/letsencrypt/letsencrypt-auto certonly $PARAMS
+	RESTART_NGINX=true
+    fi
+done < /etc/letsencrypt/domains.conf
+
+if $RESTART_NGINX; then
+    nginx -t && nginx -s reload;
+fi
