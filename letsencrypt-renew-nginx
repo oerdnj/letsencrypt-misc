@@ -28,7 +28,7 @@ while read DAYS HOSTNAME DOMAINS; do
 	if [ "$RETRIES" -eq "0" ]; then
 	    break;
 	fi
-    fi
+    done
 done < /etc/letsencrypt/domains.conf
 
 if $RESTART_NGINX; then
