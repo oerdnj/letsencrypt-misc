@@ -1,4 +1,4 @@
 location ~ ^/.well-known {
   allow all;
-  root /etc/letsencrypt/.well-known/;
+  root /etc/letsencrypt/webroot/;
 }
