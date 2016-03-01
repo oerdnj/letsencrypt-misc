@@ -1,7 +1,7 @@
 #!/bin/sh
 
 LETSENCRYPT=/opt/letsencrypt/letsencrypt-auto
-PARAMS="--authenticator webroot --renew-by-default --agree-tos --webroot-path=/etc/letsencrypt/webroot/"
+COMMON_PARAMS="--authenticator webroot --renew-by-default --agree-tos --webroot-path=/etc/letsencrypt/webroot/"
 
 usage() {
     echo bad params
@@ -18,7 +18,7 @@ while read DAYS HOSTNAME DOMAINS; do
     RETRIES=5
     while /opt/letsencrypt-misc/letsencrypt-renewneeded $HOSTNAME $DAYS; do
 	RESTART_NGINX=true
-        PARAMS="$PARAMS -d $HOSTNAME"
+        PARAMS="$COMMON_PARAMS -d $HOSTNAME"
     
 	for DOMAIN in $DOMAINS; do
 	    PARAMS="$PARAMS -d $DOMAIN"
