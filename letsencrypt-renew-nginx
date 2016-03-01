@@ -25,6 +25,8 @@ while read DAYS HOSTNAME DOMAINS; do
 	done
 	/opt/letsencrypt/letsencrypt-auto certonly $PARAMS
 
+	RETRIES=$(($RETRIES-1))
+
 	if [ "$RETRIES" -eq "0" ]; then
 	    break;
 	fi
